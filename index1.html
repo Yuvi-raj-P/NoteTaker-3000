@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Note Taking App</title>
+    <style>
+      @font-face {
+        font-family: "InterB";
+        src: url(InterB.ttf) format("truetype");
+      }
+      @font-face {
+        font-family: "Inter", sans-serif;
+        src: url(Inter.ttf) format("truetype");
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        display: flex;
+        height: 100vh;
+        background-color: #000000;
+      }
+
+      #sidebar {
+        width: 266px;
+        background: #000000;
+        color: white;
+        padding: 20px;
+        box-sizing: border-box;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+        border-right: 1px solid #575760;
+      }
+
+      #sidebar h2 {
+        margin-top: 0;
+      }
+
+      #sidebar ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      #sidebar ul li {
+        margin: 10px 0;
+      }
+
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .title h2 {
+        font-family: "InterB";
+        font-size: 20px;
+        padding-top: 12px;
+        text-align: left;
+      }
+      .main-content {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #545454;
+        font-size: 16px;
+        font-family: "Inter";
+      }
+      .notes-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+      }
+
+      .new-note-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      .new-note-btn img {
+        width: 20px;
+        height: 20px;
+      }
+      .note-list {
+        color: white;
+        margin-top: 10px;
+      }
+      .notes-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .notes-header img {
+        padding-top: 4px;
+        padding-right: 10px;
+        width: 20px;
+        height: 20px;
+      }
+      #noteElement li {
+        font-size: 13px;
+        font-family: "Inter";
+        background: #47314a;
+        border-radius: 10px;
+        padding: 10px;
+        margin: 5px 0;
+        cursor: pointer;
+      }
+      #main {
+        width: 100%;
+        height: 100vh;
+        padding-top: 40px;
+        padding-left: 40px;
+        padding-right: 40px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        overflow: hidden;
+        position: relative;
+      }
+      #noteTitle {
+        padding-left: 3px;
+        font-family: "InterB";
+        font-size: 24px;
+        outline: none;
+      }
+      #noteTitle::selection {
+        background: #5a3d6b;
+        color: #ffffff;
+      }
+      #noteDate {
+        padding-left: 3px;
+        color: #5a3d6b;
+        font-family: "Inter";
+        font-size: 14px;
+      }
+      #noteDate::selection {
+        background: #5a3d6b;
+        color: #ffffff;
+      }
+      #noteInput {
+        border: none;
+        width: 100%;
+        background-color: #000000;
+        box-sizing: border-box;
+        font-size: 16px;
+        color: #ffffff;
+        font-family: "Inter";
+        min-height: 100%;
+        padding: 0;
+        outline: none;
+      }
+      #noteInput[placeholder]:empty:before {
+        content: attr(placeholder);
+        color: #545454;
+        font-family: "Inter";
+      }
+      #noteInput::-webkit-scrollbar,
+      #noteInput::-webkit-scrollbar-track,
+      #noteInput::-webkit-scrollbar-thumb,
+      #noteInput::-webkit-scrollbar-thumb:hover {
+        display: none;
+      }
+
+      #noteInput::placeholder {
+        color: #545454;
+        font-family: "Inter";
+      }
+      #noteInput::selection {
+        background: #5a3d6b;
+        color: #ffffff;
+      }
+
+      #noteInput:focus {
+        outline: none;
+      }
+
+      #toolbar {
+        background: #232326;
+        border: 1px solid #333335;
+        border-radius: 10px;
+        color: white;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 50%;
+
+        position: fixed;
+        bottom: 6%;
+        left: 61%;
+        transform: translateX(-50%);
+        z-index: 1;
+      }
+
+      #toolbar button {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      #toolbar button.active {
+        background: #5a3d6b;
+        border-radius: 4px;
+      }
+      #noteContainer {
+        height: calc(100vh - 120px);
+        overflow-y: auto;
+        padding-right: 20px;
+      }
+
+      #noteContainer::-webkit-scrollbar {
+        width: 12px;
+      }
+
+      #noteContainer::-webkit-scrollbar-track {
+        background: #333335;
+        border-radius: 10px;
+      }
+
+      #noteContainer::-webkit-scrollbar-thumb {
+        background: #575760;
+        border-radius: 10px;
+      }
+
+      #noteContainer::-webkit-scrollbar-thumb:hover {
+        background: #232326;
+      }
+      .color-popup {
+        display: none;
+        position: absolute;
+        bottom: 100%;
+        background: #232326;
+        border: 1px solid #333335;
+        border-radius: 8px;
+        padding: 8px;
+        margin-bottom: 8px;
+      }
+
+      .color-option {
+        width: 25px;
+        height: 25px;
+        border-radius: 4px;
+        margin: 4px;
+        cursor: pointer;
+        border: none;
+      }
+
+      .color-option:hover {
+        opacity: 0.8;
+      }
+      .font-size-select {
+        background: #232326;
+        border: 1px solid #333335;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: "Inter";
+        font-size: 14px;
+      }
+
+      .font-size-select:focus {
+        outline: none;
+      }
+
+      .font-size-select option {
+        background: #232326;
+        color: white;
+      }
+      #noteInput img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="sidebar">
+      <div class="title">
+        <img
+          src="logo.png"
+          alt="Logo"
+          style="width: 50px; height: 50px; margin-bottom: 10px"
+        />
+        <h2>NoteTaker 3000</h2>
+      </div>
+      <div class="notes-header">
+        <h3 style="color: white; margin: 10px 0">All notes</h3>
+        <button class="new-note-btn">
+          <img src="newNote.svg" alt="New Note" />
+        </button>
+      </div>
+      <ul id="noteElement"></ul>
+    </div>
+    <div class="main-content">
+      Begin by creating a new note in the left panel
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const newNoteBtn = document.querySelector(".new-note-btn");
+        const noteList = document.getElementById("noteElement");
+        const mainContent = document.querySelector(".main-content");
+        let notes = JSON.parse(localStorage.getItem("notes")) || [];
+        let noteCount = notes.length;
+        let currentNote = null;
+
+        notes.forEach((note) => {
+          const li = document.createElement("li");
+          li.setAttribute("id", `note-${note.id}`);
+          li.textContent = note.title;
+          noteList.appendChild(li);
+
+          li.addEventListener("click", () => displayNote(note));
+        });
+
+        function displayNote(note) {
+          currentNote = note;
+          mainContent.innerHTML = `
+            <div id="main">
+                <div id="noteContainer">
+                    <h2 id="noteTitle" contenteditable="true">${note.title}</h2>
+                    <h4 id="noteDate">${note.date}</h4>
+                    <div id="noteInput" contenteditable="true">${note.content || '<div placeholder="Begin your journey"></div>'}</div>
+                </div>
+                
+                <div id="toolbar">
+                    <button id="saveNote">Save Note</button>
+                    <div>
+                        <select class="font-size-select" onchange="document.execCommand('fontSize', false, this.value);">
+                            <option value="1">Small</option>
+                            <option value="3" selected>Normal</option>
+                            <option value="5">Large</option>
+                            <option value="7">Huge</option>
+                        </select>
+                        <button id="boldBtn" onclick="document.execCommand('bold', false, '');"><b>B</b></button>
+                        <button id="italicBtn" onclick="document.execCommand('italic', false, '');"><i>I</i></button>
+                        <button id="underlineBtn" onclick="document.execCommand('underline', false, '');"><u>U</u></button>
+                        <button id="strikeBtn" onclick="document.execCommand('strikethrough', false, '');"><s>S</s></button>
+                        <button id="bulletBtn" onclick="document.execCommand('insertUnorderedList', false, '');"> <img src="list.svg" alt="Bullet List" style="width: 16px; height: 16px;"></button>
+                        <button id="imageBtn" onclick="document.getElementById('imageInput').click();">
+    <img src="image.svg" alt="Add Image" style="width: 16px; height: 16px;">
+</button>
+<input type="file" id="imageInput" accept="image/*" style="display: none;">
+                        <div style="position: relative; display: inline-block;">
+                            <button id="highlightBtn">H</button>
+                            <div id="colorPopup" class="color-popup">
+                                <button class="color-option" style="background: #5A3D6B" onclick="document.execCommand('backColor', false, '#5A3D6B')"></button>
+                                <button class="color-option" style="background: #2D5A27" onclick="document.execCommand('backColor', false, '#2D5A27')"></button>
+                                <button class="color-option" style="background: #5A2D2D" onclick="document.execCommand('backColor', false, '#5A2D2D')"></button>
+                                <button class="color-option" style="background: #2D4A5A" onclick="document.execCommand('backColor', false, '#2D4A5A')"></button>
+                            </div>
+                        </div>
+                        <button id="clearBtn" onclick="document.execCommand('removeFormat', false, '');">Clear</button>
+                    </div>
+                </div>
+            </div>
+        `;
+          setupNoteEventListeners();
+        }
+
+        newNoteBtn.addEventListener("click", function () {
+          noteCount++;
+          const newNote = {
+            id: noteCount,
+            title: `New Note ${noteCount}`,
+            date: new Date().toLocaleString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+            }),
+            content: "",
+          };
+          notes.push(newNote);
+          localStorage.setItem("notes", JSON.stringify(notes));
+
+          const li = document.createElement("li");
+          li.setAttribute("id", `note-${noteCount}`);
+          li.textContent = newNote.title;
+          noteList.appendChild(li);
+          li.addEventListener("click", () => displayNote(newNote));
+
+          displayNote(newNote);
+        });
+
+        function setupNoteEventListeners() {
+          const noteTitle = document.getElementById("noteTitle");
+          const noteInput = document.getElementById("noteInput");
+          const highlightBtn = document.getElementById("highlightBtn");
+          const colorPopup = document.getElementById("colorPopup");
+          const saveNote = document.getElementById("saveNote");
+          const imageInput = document.getElementById("imageInput");
+
+          noteTitle.focus();
+          document.execCommand("selectAll", false, null);
+
+          noteTitle.addEventListener("input", function () {
+            if (currentNote) {
+              if (!this.textContent.trim()) {
+                this.textContent = `New Note ${currentNote.id}`;
+              }
+              currentNote.title = this.textContent;
+              document.querySelector(`#note-${currentNote.id}`).textContent =
+                this.textContent;
+              saveToLocalStorage();
+            }
+          });
+
+          imageInput.addEventListener("change", function (e) {
+            const file = e.target.files[0];
+            const maxSizeMB = 5;
+
+            if (file.size > maxSizeMB * 1024 * 1024) {
+              alert(
+                `Image too large. Please choose an image under ${maxSizeMB}MB.`,
+              );
+              return;
+            }
+
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                  const canvas = document.createElement("canvas");
+                  const ctx = canvas.getContext("2d");
+
+                  let width = img.width;
+                  let height = img.height;
+                  const maxDimension = 1000;
+
+                  if (width > maxDimension || height > maxDimension) {
+                    if (width > height) {
+                      height = height * (maxDimension / width);
+                      width = maxDimension;
+                    } else {
+                      width = width * (maxDimension / height);
+                      height = maxDimension;
+                    }
+                  }
+
+                  canvas.width = width;
+                  canvas.height = height;
+                  ctx.drawImage(img, 0, 0, width, height);
+
+                  const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.7);
+                  //AHAHAHAHAHAH HElp
+                  const imgElement = document.createElement("img");
+                  imgElement.src = compressedDataUrl;
+                  imgElement.style.maxWidth = "100%";
+                  imgElement.style.height = "auto";
+                  imgElement.style.margin = "10px 0";
+
+                  try {
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                      const range = selection.getRangeAt(0);
+                      range.insertNode(imgElement);
+                      range.collapse(false);
+                    } else {
+                      noteInput.appendChild(imgElement);
+                    }
+
+                    if (currentNote) {
+                      currentNote.content = noteInput.innerHTML;
+                      saveToLocalStorage();
+                    }
+                  } catch (error) {
+                    if (error.name === "QuotaExceededError") {
+                      alert(
+                        "Storage quota exceeded. Try removing some old notes or images.",
+                      );
+                    } else {
+                      console.error("Error saving image:", error);
+                    }
+                  }
+                };
+                img.src = e.target.result;
+              };
+              reader.readAsDataURL(file);
+            }
+          });
+          noteTitle.addEventListener("blur", function () {
+            if (currentNote && !this.textContent.trim()) {
+              this.textContent = `New Note ${currentNote.id}`;
+              currentNote.title = this.textContent;
+              document.querySelector(`#note-${currentNote.id}`).textContent =
+                this.textContent;
+              saveToLocalStorage();
+            }
+          });
+          saveNote.addEventListener("click", function () {
+            saveToLocalStorage();
+
+            const title = document.getElementById("noteTitle").textContent;
+            const date = document.getElementById("noteDate").textContent;
+            const content = document.getElementById("noteInput").innerHTML;
+
+            const exportContent = `Title: ${title}\nDate: ${date}\n\nContent:\n${content}`;
+
+            const blob = new Blob([exportContent], { type: "text/plain" });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${title.replace(/[^a-z0-9]/gi, "_")}.txt`;
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          });
+
+          noteTitle.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              noteInput.focus();
+            }
+          });
+
+          noteInput.addEventListener("input", function () {
+            if (currentNote) {
+              currentNote.content = this.innerHTML;
+              saveToLocalStorage();
+            }
+            const container = document.getElementById("noteContainer");
+            const isNearBottom =
+              container.scrollHeight -
+                container.scrollTop -
+                container.clientHeight <
+              50;
+            if (isNearBottom) {
+              container.scrollTop =
+                container.scrollHeight - container.clientHeight;
+            }
+          });
+
+          highlightBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            colorPopup.style.display =
+              colorPopup.style.display === "block" ? "none" : "block";
+          });
+
+          document.addEventListener("click", function (e) {
+            if (!colorPopup.contains(e.target) && e.target !== highlightBtn) {
+              colorPopup.style.display = "none";
+            }
+          });
+
+          saveNote.addEventListener("click", saveToLocalStorage);
+        }
+
+        function saveToLocalStorage() {
+          localStorage.setItem("notes", JSON.stringify(notes));
+        }
+
+        document.addEventListener("selectionchange", function () {
+          const selection = window.getSelection();
+          const fontSelect = document.querySelector(".font-size-select");
+          const bulletBtn = document.getElementById("bulletBtn");
+
+          if (bulletBtn) {
+            bulletBtn.classList.toggle(
+              "active",
+              document.queryCommandState("insertUnorderedList"),
+            );
+          }
+
+          if (fontSelect) {
+            const size = document.queryCommandValue("fontSize");
+            if (size) fontSelect.value = size;
+          }
+
+          if (selection.rangeCount > 0) {
+            const boldBtn = document.getElementById("boldBtn");
+            const italicBtn = document.getElementById("italicBtn");
+            const underlineBtn = document.getElementById("underlineBtn");
+            const strikeBtn = document.getElementById("strikeBtn");
+            const highlightBtn = document.getElementById("highlightBtn");
+
+            if (boldBtn)
+              boldBtn.classList.toggle(
+                "active",
+                document.queryCommandState("bold"),
+              );
+            if (italicBtn)
+              italicBtn.classList.toggle(
+                "active",
+                document.queryCommandState("italic"),
+              );
+            if (underlineBtn)
+              underlineBtn.classList.toggle(
+                "active",
+                document.queryCommandState("underline"),
+              );
+            if (strikeBtn)
+              strikeBtn.classList.toggle(
+                "active",
+                document.queryCommandState("strikethrough"),
+              );
+            if (highlightBtn)
+              highlightBtn.classList.toggle(
+                "active",
+                document.queryCommandValue("backColor") === "rgb(90, 61, 107)",
+              );
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
